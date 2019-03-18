@@ -1,0 +1,246 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>BoxFieldFDPlots</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-03-17"><meta name="DC.source" content="BoxFieldFDPlots.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">function</span> [Ex,Ey] = BoxFieldFDPlots(L,W,xmesh,ymesh,Lb,Wb,V0,sig0)
+<span class="comment">%BoxFieldFDPlots Calculates the potential at each point in space, with the x</span>
+<span class="comment">%boundaries held at V0 and the y boundaries held at zero. There are also</span>
+<span class="comment">%boxes of dimensions Lb,Wb at the centre of the top and bottom edges, with</span>
+<span class="comment">%conductivity sig0. This function also draws plots of the voltage and</span>
+<span class="comment">%electric field.</span>
+<span class="comment">%   L: x length, m</span>
+<span class="comment">%   W: y length, m</span>
+<span class="comment">%   xmesh,ymesh: number of mesh steps</span>
+<span class="comment">%   Lb,Wb: dimensions of boxes, m</span>
+<span class="comment">%   V0: x-boundary potential, V</span>
+<span class="comment">%   sig0: Conductivity of boxes, Ohm^-1</span>
+
+dx = L/xmesh;
+dy = W/ymesh;
+
+n = 0;
+nxp = 0;
+nxm = 0;
+nyp = 0;
+nym = 0;
+G = spalloc(xmesh*ymesh,xmesh*ymesh,xmesh*ymesh*10);
+B = zeros(1,xmesh*ymesh);
+
+x = linspace(0, L, xmesh);
+y = linspace(0, W, ymesh);
+inBoxes = @(x,y) (x &lt; L/2+Lb &amp; x &gt; L/2-Lb).*(y &lt; Wb | y &gt; W-Wb);
+sigma = @(x,y) sig0.*inBoxes(x,y) + ~inBoxes(x,y);
+
+<span class="keyword">for</span> i = 1:xmesh
+   <span class="keyword">for</span> j = 1:ymesh
+      n = j + (i-1)*ymesh;
+
+      nxp = j + i*ymesh;
+      nxm = j + (i-2)*ymesh;
+      nyp = (j+1) + (i-1)*ymesh;
+      nym = (j-1) + (i-1)*ymesh;
+
+      <span class="keyword">if</span> (i == 1)
+         G(n,n) = (1/dx^2);
+         B(n) = (V0/dx^2);
+      <span class="keyword">elseif</span> (i == xmesh)
+         G(n,n) = (1/dx^2);
+         B(n) = (V0/dx^2);
+      <span class="keyword">elseif</span> (j == 1)
+         G(n,n) = (1/dy^2);
+      <span class="keyword">elseif</span> (j == ymesh)
+         G(n,n) = (1/dy^2);
+      <span class="keyword">else</span>
+         G(n,n) = (-2*(1/dx^2 + 1/dy^2))*sigma(x(i),y(j));
+         G(n,nxp) = (1/dx^2);
+         G(n,nxm) = (1/dx^2);
+         G(n,nyp) = (1/dy^2);
+         G(n,nym) = (1/dy^2);
+      <span class="keyword">end</span>
+   <span class="keyword">end</span>
+<span class="keyword">end</span>
+V = G\B.';
+
+Vcalc = zeros(xmesh,ymesh);
+<span class="keyword">for</span> i=1:xmesh
+    <span class="keyword">for</span> j = 1:ymesh
+        n = j + (i-1)*ymesh;
+        Vcalc(i,j) = V(n);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+figure(9);
+surf(y,x,Vcalc);
+title(<span class="string">'Voltage Plot'</span>);
+xlabel(<span class="string">'y (m)'</span>);
+ylabel(<span class="string">'x (m)'</span>);
+zlabel(<span class="string">'V (V)'</span>);
+[Ex,Ey] = gradient(Vcalc);
+Ex = Ex/dx;
+Ey = Ey/dy;
+figure(10);
+quiver(y,x,Ex,Ey);
+xlabel(<span class="string">'y (m)'</span>);
+ylabel(<span class="string">'x (m)'</span>);
+title(<span class="string">'Electric Field Vector Plot'</span>);
+xlim([0 W]);
+ylim([0 L]);
+
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">Not enough input arguments.
+
+Error in BoxFieldFDPlots (line 14)
+dx = L/xmesh;
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function [Ex,Ey] = BoxFieldFDPlots(L,W,xmesh,ymesh,Lb,Wb,V0,sig0)
+%BoxFieldFDPlots Calculates the potential at each point in space, with the x
+%boundaries held at V0 and the y boundaries held at zero. There are also
+%boxes of dimensions Lb,Wb at the centre of the top and bottom edges, with
+%conductivity sig0. This function also draws plots of the voltage and
+%electric field.
+%   L: x length, m
+%   W: y length, m
+%   xmesh,ymesh: number of mesh steps
+%   Lb,Wb: dimensions of boxes, m
+%   V0: x-boundary potential, V
+%   sig0: Conductivity of boxes, Ohm^-1
+
+dx = L/xmesh;
+dy = W/ymesh;
+
+n = 0;
+nxp = 0;
+nxm = 0;
+nyp = 0;
+nym = 0;
+G = spalloc(xmesh*ymesh,xmesh*ymesh,xmesh*ymesh*10);
+B = zeros(1,xmesh*ymesh);
+
+x = linspace(0, L, xmesh);
+y = linspace(0, W, ymesh);
+inBoxes = @(x,y) (x < L/2+Lb & x > L/2-Lb).*(y < Wb | y > W-Wb);
+sigma = @(x,y) sig0.*inBoxes(x,y) + ~inBoxes(x,y);
+
+for i = 1:xmesh
+   for j = 1:ymesh
+      n = j + (i-1)*ymesh;
+      
+      nxp = j + i*ymesh;
+      nxm = j + (i-2)*ymesh;
+      nyp = (j+1) + (i-1)*ymesh;
+      nym = (j-1) + (i-1)*ymesh;
+      
+      if (i == 1)
+         G(n,n) = (1/dx^2);
+         B(n) = (V0/dx^2);
+      elseif (i == xmesh)
+         G(n,n) = (1/dx^2);
+         B(n) = (V0/dx^2);
+      elseif (j == 1)
+         G(n,n) = (1/dy^2);
+      elseif (j == ymesh)
+         G(n,n) = (1/dy^2);
+      else
+         G(n,n) = (-2*(1/dx^2 + 1/dy^2))*sigma(x(i),y(j));
+         G(n,nxp) = (1/dx^2);
+         G(n,nxm) = (1/dx^2);
+         G(n,nyp) = (1/dy^2);
+         G(n,nym) = (1/dy^2);
+      end
+   end
+end
+V = G\B.';
+
+Vcalc = zeros(xmesh,ymesh);
+for i=1:xmesh
+    for j = 1:ymesh
+        n = j + (i-1)*ymesh;
+        Vcalc(i,j) = V(n); 
+    end
+end
+figure(9);
+surf(y,x,Vcalc);
+title('Voltage Plot');
+xlabel('y (m)');
+ylabel('x (m)');
+zlabel('V (V)');
+[Ex,Ey] = gradient(Vcalc);
+Ex = Ex/dx;
+Ey = Ey/dy;
+figure(10);
+quiver(y,x,Ex,Ey);
+xlabel('y (m)');
+ylabel('x (m)');
+title('Electric Field Vector Plot');
+xlim([0 W]);
+ylim([0 L]);
+
+end
+
+
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,426 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>EFieldElectrons</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-03-17"><meta name="DC.source" content="EFieldElectrons.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">function</span> [] = EFieldElectrons(Etype,PlotJ)
+<span class="comment">%   E: Type of electric field (see below)</span>
+<span class="comment">%   PlotJ: If non-zero, generate a plot of current density</span>
+
+
+clf;
+cla;
+xlength = 200E-9; <span class="comment">% Length of region in the x-direction, m</span>
+ylength = 100E-9; <span class="comment">% Length of region in the y-direction, m</span>
+N = 10000; <span class="comment">% Total number of electrons</span>
+px = 0; <span class="comment">% x position of electrons, m</span>
+py = 0; <span class="comment">% y position of electrons, m</span>
+vx = 0; <span class="comment">% x-velocity of electrons, m/s</span>
+vy = 0; <span class="comment">% y-velocity of electrons, m/s</span>
+dx = 1E-9;
+dy = 1E-9;
+
+m = 0.26*(9.11E-31); <span class="comment">% Electron mass, kg</span>
+T = 300; <span class="comment">% Temperature, K</span>
+q = 1.602E-19; <span class="comment">% Electric field, C</span>
+dt = 1E-15; <span class="comment">% Time step, s</span>
+reflecty = zeros(N,1); <span class="comment">% For reflecting boundary</span>
+reflectx = zeros(N,1);
+scatter = zeros(N,1); <span class="comment">% For scattering</span>
+Pscat = 1 - exp(-dt/0.2E-12); <span class="comment">% Scattering probability</span>
+Time = 1000; <span class="comment">% Total number of time steps</span>
+maxTraj = 20; <span class="comment">% Maximum number of trajectories to plot</span>
+
+boxes = 0; <span class="comment">% Turn boxes on/off</span>
+Lb = 20e-9;
+Wb = 10e-9;
+
+px = -(xlength/2) + xlength*rand(N,1);
+py = -(ylength/2) + ylength*rand(N,1);
+vx = sqrt(1.380E-23*T/m)*randn(N,1);
+vy = sqrt(1.380E-23*T/m)*randn(N,1);
+
+<span class="comment">% Type of electric field</span>
+Evx = zeros(round(xlength/dx),round(ylength/dy));
+Evy = zeros(round(xlength/dx),round(ylength/dy));
+<span class="keyword">if</span> (Etype == 0)
+    <span class="comment">% Constant E-field</span>
+    Vx = 0.1; <span class="comment">% Voltage driving electric field, in V</span>
+    Vy = -1;
+    Evx(:,:) = Vx*q/m/xlength*dt;
+    Evy(:,:) = Vy*q/m/ylength*dt;
+<span class="keyword">elseif</span> (Etype == 1)
+    <span class="comment">% Electric field calculated with FD solver</span>
+    [Evx, Evy] = SaddleFieldFD(xlength,ylength,round(xlength/dx),round(ylength/dy),1);
+    Evx = Evx*q/m*dt;
+    Evy = Evy*q/m*dt;
+<span class="keyword">elseif</span> (Etype == 2)
+    boxes = 1;
+    [Evx, Evy] = BoxFieldFD(xlength,ylength,round(xlength/dx),round(ylength/dy),2*Lb,2*Wb,1,1e-2);
+    Evx = Evx*q/m*dt;
+    Evy = Evy*q/m*dt;
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> (boxes == 1) <span class="comment">% Ensure that no electrons begin inside the barriers</span>
+    <span class="keyword">while</span> (sum(px(abs(px) &lt; Lb &amp; abs(py) &gt; ylength/2-Wb) + py(abs(py) &gt; ylength/2-Wb &amp; abs(px) &lt; Lb)) ~= 0)
+        px(abs(px) &lt; Lb &amp; abs(py) &gt; ylength/2-Wb) = -(xlength/2) + xlength*rand(1,1);
+        py(abs(py) &gt; ylength/2-Wb &amp; abs(px) &lt; Lb) = -(xlength/2) + ylength*rand(1,1);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+colours = rand(min(maxTraj, N), 3);
+xold = px(1:min(maxTraj,N));
+yold = py(1:min(maxTraj,N));
+wrapped = zeros(min(maxTraj,N),1);
+
+<span class="keyword">for</span> t = 1:Time
+
+   xind = 1+floor((px+xlength/2)./dx);
+   yind = 1+floor((py+ylength/2)./dy);
+   xold = px(1:min(maxTraj,N));
+   yold = py(1:min(maxTraj,N));
+   <span class="comment">% Update velocities with E-field</span>
+   vx = vx + Evx(sub2ind(size(Evx),xind,yind));
+   vy = vy + Evy(sub2ind(size(Evy),xind,yind));
+   <span class="comment">% Update positions</span>
+   px = px + vx.*dt;
+   py = py + vy.*dt;
+
+   <span class="comment">% Wrapping boundary</span>
+   wrapped = (abs(px(1:min(maxTraj,N))) &gt; xlength/2);
+   px(px &lt; -xlength/2) = px(px &lt; -xlength/2) + xlength;
+   px(px &gt; xlength/2) = px(px &gt; xlength/2) - xlength;
+
+   <span class="comment">% Reflecting boundary and boxes</span>
+   <span class="keyword">if</span> (boxes == 0)
+       reflecty = -1*(abs(py) &gt; ylength/2);
+       vy = vy.*(2*reflecty+1);
+   <span class="keyword">end</span>
+   <span class="keyword">if</span> (boxes == 1)
+       reflecty = -1*((abs(py) &gt; ylength/2) | (abs(py) &gt; ylength/2-Wb &amp; abs(px) &lt; Lb));
+       reflectx = -1*(abs(px) &lt; Lb &amp; abs(py) &gt; ylength/2-Wb);
+       vy = vy.*(2*reflecty+1);
+       vx = vx.*(2*reflectx+1);
+   <span class="keyword">end</span>
+   py = py - vy.*reflecty.*dt;
+   px = px - vx.*reflectx.*dt;
+
+   <span class="comment">% Scattering</span>
+   scatter = rand(N,1) &lt; Pscat;
+   vx = vx + (sqrt(1.380E-23*T/m)*randn(N,1) - vx).*scatter;
+   vy = vy + (sqrt(1.380E-23*T/m)*randn(N,1) - vy).*scatter;
+
+   <span class="keyword">if</span> (boxes == 1) <span class="comment">% Draw the boxes</span>
+       plot([-Lb Lb], [ylength/2-Wb ylength/2-Wb], <span class="string">'k'</span>);
+       hold <span class="string">on</span>;
+       plot([-Lb Lb], [-ylength/2+Wb -ylength/2+Wb], <span class="string">'k'</span>);
+       hold <span class="string">on</span>;
+       plot([-Lb -Lb], [ylength/2 ylength/2-Wb], <span class="string">'k'</span>);
+       hold <span class="string">on</span>;
+       plot([-Lb -Lb], [-ylength/2 -ylength/2+Wb], <span class="string">'k'</span>);
+       hold <span class="string">on</span>;
+       plot([Lb Lb], [ylength/2 ylength/2-Wb], <span class="string">'k'</span>);
+       hold <span class="string">on</span>;
+       plot([Lb Lb], [-ylength/2 -ylength/2+Wb], <span class="string">'k'</span>);
+       hold <span class="string">on</span>;
+   <span class="keyword">end</span>
+
+   <span class="keyword">for</span> i = 1:min(maxTraj,N)
+    <span class="keyword">if</span> (wrapped(i) == 0)
+       plot([xold(i) px(i)], [yold(i) py(i)], <span class="string">'color'</span>, colours(i,:));
+    <span class="keyword">end</span>
+   <span class="keyword">end</span>
+   xlim([-xlength/2 xlength/2]);
+   ylim([-ylength/2 ylength/2]);
+   hold <span class="string">on</span>;
+   <span class="comment">%pause(0.0001);</span>
+<span class="keyword">end</span>
+Tav = 0.5*m/(1.380E-23)*sum(vx.^2 + vy.^2)/N;
+figure(1);
+title(<span class="string">'Electron trajectories'</span>);
+xlabel(<span class="string">'x (m)'</span>);
+ylabel(<span class="string">'y (m)'</span>);
+
+figure(2);
+xlim([-xlength/2 xlength/2]);
+ylim([-ylength/2 ylength/2]);
+phist = histogram2(px, py, [20 10], <span class="string">'displaystyle'</span>, <span class="string">'tile'</span>);
+title(<span class="string">'Electron Density Map'</span>);
+xlabel(<span class="string">'x (m)'</span>);
+ylabel(<span class="string">'y (m)'</span>);
+colorbar;
+
+figure(3);
+Tmap = zeros(200,100);
+<span class="keyword">for</span> i = 1:xlength*1E9
+    <span class="keyword">for</span> j = 1:ylength*1E9
+        thiscell = px &gt; (i-1)*1E-9-xlength/2 &amp; px &lt; i*1E-9-xlength/2 &amp; py &gt; (j-1)*1E-9-ylength/2 &amp; py &lt; j*1E-9-ylength/2;
+        <span class="keyword">if</span> (sum(thiscell) &lt;= 0)
+            Tmap(i,j) = 0;
+        <span class="keyword">else</span>
+            Tmap(i,j) = 0.5*m/(1.380E-23)*sum(vx(thiscell).^2 + vy(thiscell).^2)./sum(thiscell);
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+X = linspace(-xlength/2, xlength/2, xlength*1E9);
+Y = linspace(-ylength/2, ylength/2, ylength*1E9);
+surfc(Y, X, Tmap);
+title(<span class="string">'Temperature map'</span>);
+zlabel(<span class="string">'Temperature (K)'</span>);
+xlabel(<span class="string">'x (m)'</span>);
+ylabel(<span class="string">'y (m)'</span>);
+
+<span class="keyword">if</span> PlotJ ~= 0
+   figure(4);
+   Jx = 1e15*q*vx;
+   Jy = 1e15*q*vy;
+   Jhist = histogram2(Jx, Jy, [50 50], <span class="string">'displaystyle'</span>, <span class="string">'tile'</span>);
+   title(<span class="string">'Plot of Current Density'</span>);
+   xlabel(<span class="string">'J_x (A/m)'</span>);
+   ylabel(<span class="string">'J_y (A/m)'</span>);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">Not enough input arguments.
+
+Error in EFieldElectrons (line 41)
+if (Etype == 0)
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function [] = EFieldElectrons(Etype,PlotJ)
+%   E: Type of electric field (see below)
+%   PlotJ: If non-zero, generate a plot of current density
+
+
+clf;
+cla;
+xlength = 200E-9; % Length of region in the x-direction, m
+ylength = 100E-9; % Length of region in the y-direction, m
+N = 10000; % Total number of electrons
+px = 0; % x position of electrons, m
+py = 0; % y position of electrons, m
+vx = 0; % x-velocity of electrons, m/s
+vy = 0; % y-velocity of electrons, m/s
+dx = 1E-9;
+dy = 1E-9;
+
+m = 0.26*(9.11E-31); % Electron mass, kg
+T = 300; % Temperature, K
+q = 1.602E-19; % Electric field, C
+dt = 1E-15; % Time step, s
+reflecty = zeros(N,1); % For reflecting boundary
+reflectx = zeros(N,1);
+scatter = zeros(N,1); % For scattering
+Pscat = 1 - exp(-dt/0.2E-12); % Scattering probability
+Time = 1000; % Total number of time steps
+maxTraj = 20; % Maximum number of trajectories to plot
+
+boxes = 0; % Turn boxes on/off
+Lb = 20e-9;
+Wb = 10e-9;
+
+px = -(xlength/2) + xlength*rand(N,1);
+py = -(ylength/2) + ylength*rand(N,1);
+vx = sqrt(1.380E-23*T/m)*randn(N,1);
+vy = sqrt(1.380E-23*T/m)*randn(N,1);
+
+% Type of electric field
+Evx = zeros(round(xlength/dx),round(ylength/dy));
+Evy = zeros(round(xlength/dx),round(ylength/dy));
+if (Etype == 0)
+    % Constant E-field
+    Vx = 0.1; % Voltage driving electric field, in V
+    Vy = -1;
+    Evx(:,:) = Vx*q/m/xlength*dt; 
+    Evy(:,:) = Vy*q/m/ylength*dt;
+elseif (Etype == 1)
+    % Electric field calculated with FD solver
+    [Evx, Evy] = SaddleFieldFD(xlength,ylength,round(xlength/dx),round(ylength/dy),1);
+    Evx = Evx*q/m*dt;
+    Evy = Evy*q/m*dt;
+elseif (Etype == 2)
+    boxes = 1;
+    [Evx, Evy] = BoxFieldFD(xlength,ylength,round(xlength/dx),round(ylength/dy),2*Lb,2*Wb,1,1e-2);
+    Evx = Evx*q/m*dt;
+    Evy = Evy*q/m*dt;
+end
+
+if (boxes == 1) % Ensure that no electrons begin inside the barriers
+    while (sum(px(abs(px) < Lb & abs(py) > ylength/2-Wb) + py(abs(py) > ylength/2-Wb & abs(px) < Lb)) ~= 0)
+        px(abs(px) < Lb & abs(py) > ylength/2-Wb) = -(xlength/2) + xlength*rand(1,1);
+        py(abs(py) > ylength/2-Wb & abs(px) < Lb) = -(xlength/2) + ylength*rand(1,1);
+    end
+end
+colours = rand(min(maxTraj, N), 3);
+xold = px(1:min(maxTraj,N));
+yold = py(1:min(maxTraj,N));
+wrapped = zeros(min(maxTraj,N),1);
+
+for t = 1:Time
+   
+   xind = 1+floor((px+xlength/2)./dx);
+   yind = 1+floor((py+ylength/2)./dy);
+   xold = px(1:min(maxTraj,N));
+   yold = py(1:min(maxTraj,N));
+   % Update velocities with E-field
+   vx = vx + Evx(sub2ind(size(Evx),xind,yind));
+   vy = vy + Evy(sub2ind(size(Evy),xind,yind));
+   % Update positions
+   px = px + vx.*dt;
+   py = py + vy.*dt;
+   
+   % Wrapping boundary
+   wrapped = (abs(px(1:min(maxTraj,N))) > xlength/2);
+   px(px < -xlength/2) = px(px < -xlength/2) + xlength;
+   px(px > xlength/2) = px(px > xlength/2) - xlength;
+   
+   % Reflecting boundary and boxes
+   if (boxes == 0)
+       reflecty = -1*(abs(py) > ylength/2);
+       vy = vy.*(2*reflecty+1);
+   end
+   if (boxes == 1)
+       reflecty = -1*((abs(py) > ylength/2) | (abs(py) > ylength/2-Wb & abs(px) < Lb));
+       reflectx = -1*(abs(px) < Lb & abs(py) > ylength/2-Wb);
+       vy = vy.*(2*reflecty+1);
+       vx = vx.*(2*reflectx+1);
+   end
+   py = py - vy.*reflecty.*dt;
+   px = px - vx.*reflectx.*dt;
+
+   % Scattering
+   scatter = rand(N,1) < Pscat;
+   vx = vx + (sqrt(1.380E-23*T/m)*randn(N,1) - vx).*scatter;
+   vy = vy + (sqrt(1.380E-23*T/m)*randn(N,1) - vy).*scatter;
+   
+   if (boxes == 1) % Draw the boxes
+       plot([-Lb Lb], [ylength/2-Wb ylength/2-Wb], 'k');
+       hold on;
+       plot([-Lb Lb], [-ylength/2+Wb -ylength/2+Wb], 'k');
+       hold on;
+       plot([-Lb -Lb], [ylength/2 ylength/2-Wb], 'k');
+       hold on;
+       plot([-Lb -Lb], [-ylength/2 -ylength/2+Wb], 'k');
+       hold on;
+       plot([Lb Lb], [ylength/2 ylength/2-Wb], 'k');
+       hold on;
+       plot([Lb Lb], [-ylength/2 -ylength/2+Wb], 'k');
+       hold on;
+   end
+   
+   for i = 1:min(maxTraj,N)
+    if (wrapped(i) == 0)
+       plot([xold(i) px(i)], [yold(i) py(i)], 'color', colours(i,:));
+    end
+   end
+   xlim([-xlength/2 xlength/2]);
+   ylim([-ylength/2 ylength/2]);
+   hold on;
+   %pause(0.0001);
+end
+Tav = 0.5*m/(1.380E-23)*sum(vx.^2 + vy.^2)/N;
+figure(1);
+title('Electron trajectories');
+xlabel('x (m)');
+ylabel('y (m)');
+
+figure(2);
+xlim([-xlength/2 xlength/2]);
+ylim([-ylength/2 ylength/2]);
+phist = histogram2(px, py, [20 10], 'displaystyle', 'tile');
+title('Electron Density Map');
+xlabel('x (m)');
+ylabel('y (m)');
+colorbar;
+
+figure(3);
+Tmap = zeros(200,100); 
+for i = 1:xlength*1E9
+    for j = 1:ylength*1E9
+        thiscell = px > (i-1)*1E-9-xlength/2 & px < i*1E-9-xlength/2 & py > (j-1)*1E-9-ylength/2 & py < j*1E-9-ylength/2;
+        if (sum(thiscell) <= 0)
+            Tmap(i,j) = 0;
+        else
+            Tmap(i,j) = 0.5*m/(1.380E-23)*sum(vx(thiscell).^2 + vy(thiscell).^2)./sum(thiscell);
+        end
+    end
+end
+X = linspace(-xlength/2, xlength/2, xlength*1E9);
+Y = linspace(-ylength/2, ylength/2, ylength*1E9);
+surfc(Y, X, Tmap);
+title('Temperature map');
+zlabel('Temperature (K)');
+xlabel('x (m)');
+ylabel('y (m)');
+
+if PlotJ ~= 0
+   figure(4);
+   Jx = 1e15*q*vx;
+   Jy = 1e15*q*vy;
+   Jhist = histogram2(Jx, Jy, [50 50], 'displaystyle', 'tile');
+   title('Plot of Current Density');
+   xlabel('J_x (A/m)');
+   ylabel('J_y (A/m)');
+end
+##### SOURCE END #####
+--></body></html>

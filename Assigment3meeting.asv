@@ -1,0 +1,43 @@
+%% ELEC 4700 Assignment 3: Monte Carlo MD with FD Electric Field
+% Tyler Armstrong, 101009324 
+%
+%
+% In this experiment, the molecular dynamics simulation from Assignment 1
+% was modified to include an electric field, calculated using the finite
+% difference code from Assignment 2. The electric field comes from an
+% electric field separate from the electrons; there is no interaction
+% between them. 
+
+%% Part 1: Constant Electric Field
+%
+% The first case demonstrated here is an electric field constant across all
+% space. This was not calculated using FD; the electric field is just
+% $E_x=V_x/L_x$, and $E_y=V_y/L_y$. The voltages used here were 0.1V and
+% -1V in the x- and y-directions, respectively.
+%
+% A current density plot will be generated here. The current density can be
+% calculated from the following formula:
+%
+% $$J=nqv$$
+%
+% Where $\rho$ is the charge carrier density (here assumed to be 
+% 10e15cm^2), $q$ is the elementary charge, and $v$ is the velocity of the
+% carriers. The plots are shown below. 
+%
+EFieldElectrons(0,1);
+%%
+% The electric field caused the electron trajectories to curve greatly. The
+% current density map shows that most of the current densities from each
+% particle (which represents multiple electrons) have low positive values
+% in the x-direction. This is likely because of the low positive voltage in
+% the x-direction. However, most of the y-direction currents are around
+% zero. This is unexpected, given the larger negative voltage in the
+% y-direction. 
+%
+%% Part 2: Electric Field with FD
+%
+% Next, the finite difference method was used to calculate the electric
+% field at each point in space. A voltage of 1V was applied at the
+% x-boundaries, with a voltage of 0V at the y-boundaries. Conductive boxes
+% placed at the centre of the top and bottom edges with dimensions 40nm x
+% 20nm and conductivity $\sigma_$
